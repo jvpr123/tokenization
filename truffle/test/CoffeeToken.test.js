@@ -1,17 +1,10 @@
 const CoffeeToken = artifacts.require("CoffeeToken");
 
-const chai = require("chai");
 const BN = web3.utils.BN;
-const chaiBN = require("chai-bn")(BN);
-const chaiAsPromised = require("chai-as-promised")
-
-const assert = chai.assert;
+const chai = require("./chaisetup");
 const expect = chai.expect;
 
-chai.use(chaiBN);
-chai.use(chaiAsPromised);
-
-contract("Coffee Token", async (accounts) => {
+contract("CoffeeToken Contract", async (accounts) => {
     const [deployerAccount, recipient] = accounts;
 
     beforeEach(async () => {
@@ -28,18 +21,22 @@ contract("Coffee Token", async (accounts) => {
         // expect(await instance.balanceOf(deployerAccount)).to.be.a.bignumber.equal(totalSupply);
         
         // ---> USING CHAI-AS-PROMISED <---
-        expect(this.instance.balanceOf(deployerAccount)).to.eventually.be.a.bignumber.equal(this.totalSupply);
+        let deployerBalance = await this.instance.balanceOf(deployerAccount);
+        let totalSupply = await this.instance.totalSupply();
+
+        expect(deployerBalance.toNumber()).to.be.equal(totalSupply.toNumber());
     });
+    
+    it("should allow sending tokens between accounts", async () => {
+        expect(await this.instance.balanceOf(deployerAccount)).to.be.a.bignumber.equal(this.totalSupply);
+        
+        await this.instance.transfer(recipient, 1);
+        
+        expect(await this.instance.balanceOf(recipient)).to.be.a.bignumber.equal(new BN(1));
+        expect(await this.instance.balanceOf(deployerAccount)).to.be.a.bignumber.equal(new BN(this.totalSupply - 1));
+    })
     
     it("should not allow sending more tokens than avaiable on supply", async () => {
         expect(this.instance.transfer(recipient, (new BN(this.totalSupply + 1)))).to.eventually.be.rejected;
-    })
-
-    it("should allow sending tokens between accounts", async () => {
-        expect(this.instance.balanceOf(deployerAccount)).to.eventually.be.a.bignumber.equal(this.totalSupply);
-        expect(this.instance.transfer(recipient, 1)).to.eventually.be.fulfilled;
-        
-        expect(this.instance.balanceOf(recipient)).to.eventually.be.a.bignumber.equal(new BN(1));
-        expect(this.instance.balanceOf(deployerAccount)).to.eventually.be.a.bignumber.equal(new BN(this.totalSupply - 1));
     })
 });
