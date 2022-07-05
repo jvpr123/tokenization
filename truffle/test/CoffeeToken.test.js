@@ -14,10 +14,12 @@ chai.use(chaiAsPromised);
 contract("Coffee Token", async (accounts) => {
     const [deployerAccount, recipient] = accounts;
 
-    it("should have all tokens in contract owner`s account", async () => {
-        let instance = await CoffeeToken.deployed();
-        let totalSupply = await instance.totalSupply();
+    beforeEach(async () => {
+        this.instance = await CoffeeToken.new(500);
+        this.totalSupply = await this.instance.totalSupply();
+    })
 
+    it("should have all tokens in contract owner`s account", async () => {
         // ---> USING CHAI ASSERT <---  
         // let balance = await instance.balanceOf(deployerAccount);
         // assert.equal(balance.valueOf(), totalSupply.valueOf(), "The balances do not match");
@@ -26,21 +28,18 @@ contract("Coffee Token", async (accounts) => {
         // expect(await instance.balanceOf(deployerAccount)).to.be.a.bignumber.equal(totalSupply);
         
         // ---> USING CHAI-AS-PROMISED <---
-        expect(instance.balanceOf(deployerAccount)).to.eventually.be.a.bignumber.equal(totalSupply);
+        expect(this.instance.balanceOf(deployerAccount)).to.eventually.be.a.bignumber.equal(this.totalSupply);
     });
-
-    it("should allow sending tokens between accounts", async () => {
-        let instance = await CoffeeToken.deployed();
-        let totalSupply = await instance.totalSupply();
-
-        expect(instance.balanceOf(deployerAccount)).to.eventually.be.a.bignumber.equal(totalSupply);
-        expect(instance.transfer(recipient, 1)).to.eventually.be.fulfilled;
+    
+    it("should not allow sending more tokens than avaiable on supply", async () => {
+        expect(this.instance.transfer(recipient, (new BN(this.totalSupply + 1)))).to.eventually.be.rejected;
     })
 
-    it("should not allow sending more tokens than avaiable on supply", async () => {
-        let instance = await CoffeeToken.deployed();
-        let deployerBalance = await instance.balanceOf(deployerAccount);
-
-        expect(instance.transfer(recipient, new BN(deployerBalance + 1))).to.be.rejected;
+    it("should allow sending tokens between accounts", async () => {
+        expect(this.instance.balanceOf(deployerAccount)).to.eventually.be.a.bignumber.equal(this.totalSupply);
+        expect(this.instance.transfer(recipient, 1)).to.eventually.be.fulfilled;
+        
+        expect(this.instance.balanceOf(recipient)).to.eventually.be.a.bignumber.equal(new BN(1));
+        expect(this.instance.balanceOf(deployerAccount)).to.eventually.be.a.bignumber.equal(new BN(this.totalSupply - 1));
     })
 });
