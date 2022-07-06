@@ -32,8 +32,10 @@ export const init = async () => {
 
     const web3 = new Web3(provider);
     const networkId = await web3.eth.net.getId();
-    const CoffeeTokenInstance = new web3.eth.Contract(
-        CoffeeToken.abi, 
-        CoffeeToken.networks[networkId].address
-    ); 
+    
+    return {
+        CoffeeTokenInstance: new web3.eth.Contract(CoffeeToken.abi, CoffeeToken.networks[networkId].address),
+        CoffeeTokenSaleInstance: new web3.eth.Contract(CoffeeTokenSale.abi, CoffeeTokenSale.networks[networkId].address),
+        KycInstance: new web3.eth.Contract(KYC.abi, KYC.networks[networkId].address),
+    } 
 }
