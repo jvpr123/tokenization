@@ -1,5 +1,6 @@
 const CoffeeToken = artifacts.require("CoffeeToken");
 const CoffeeTokenSale = artifacts.require("CoffeeTokenSale");
+const KYC = artifacts.require("KYC");
 
 const BN = web3.utils.BN;
 const chai = require("./chaisetup");
@@ -26,7 +27,9 @@ contract("CoffeeTokenSale Contract", async (accounts) => {
     it("should allow tokens purchase", async () => {
         let coffeeTokenInstance = await CoffeeToken.deployed();
         let coffeeTokenSaleInstance = await CoffeeTokenSale.deployed();
+        let kycInstance = await KYC.deployed();
 
+        await kycInstance.setKycCompleted(recipient, { from: deployerAccount });
         await coffeeTokenSaleInstance.sendTransaction({ from: recipient, value: web3.utils.toWei("1", "wei") });
         
         expect(await coffeeTokenInstance.balanceOf(recipient)).to.be.a.bignumber.equal(new BN(1));
