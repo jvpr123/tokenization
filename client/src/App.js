@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from "react";
+
 import KYC from "./Components/KYC";
+import BuyTokens from "./Components/BuyTokens";
+
 import { init } from "./Web3Client";
 
 function App() {
@@ -19,7 +22,9 @@ function App() {
     <>
       <h1>Coffee Tokens</h1>
 
-      <KYC props={ KycInstance }/>
+      <KYC kycInstance={ KycInstance }/>
+      <br />
+      <BuyTokens coffeeTokenSaleInstance={ CoffeeTokenSaleInstance } />
     </>
   );
 }

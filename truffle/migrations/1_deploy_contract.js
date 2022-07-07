@@ -1,4 +1,4 @@
-require("dotenv").config({ path: "../.env" });
+const env = require("../env");
 
 const CoffeeToken = artifacts.require("CoffeeToken.sol");
 const CoffeeTokenSale = artifacts.require("CoffeeTokenSale.sol");
@@ -7,8 +7,8 @@ const KYC = artifacts.require("KYC.sol");
 module.exports = async (deployer) => {
     const [ownerAddress] = await web3.eth.getAccounts();
     const token = {
-        initialSupply: process.env.TOKENS_INITIAL_SUPPLY,
-        rate: process.env.TOKENS_RATE,
+        initialSupply: env.tokensInitialSupply,
+        rate: env.tokensRate,
     }
 
     /**
@@ -30,7 +30,7 @@ module.exports = async (deployer) => {
         * @param CoffeeToken.address points to the CoffeeToken Contract address
         * @param KYC.address points to the KYC Contract address
      */
-     await deployer.deploy(CoffeeTokenSale, token.rate, ownerAddress, CoffeeToken.address, KYC.address);
+     await deployer.deploy(CoffeeTokenSale, 1, ownerAddress, CoffeeToken.address, KYC.address);
 
     /**
         * @dev After deploying, it`s time to transfer all CoffeeToken initial supply

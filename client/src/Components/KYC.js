@@ -1,13 +1,13 @@
 import React, { useState } from "react";
 
-function KYC({KycInstance}) {
+function KYC({ kycInstance }) {
   const [kycAddress, setKycAddress] = useState("");
 
   const handleKycSubmit = async () => {
     try {
         const currentAccount = await window.ethereum.request({ method: "eth_requestAccounts" });
         
-        await KycInstance.methods.setKycCompleted(kycAddress).send({ from: currentAccount[0] });
+        await kycInstance.methods.setKycCompleted(kycAddress).send({ from: currentAccount[0] });
         alert("Successfully whitelisted!");
 
         setKycAddress("");
